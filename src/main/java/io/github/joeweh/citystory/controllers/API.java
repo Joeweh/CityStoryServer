@@ -28,9 +28,9 @@ public class API {
     this.mapper = new ObjectMapper();
   }
 
-  @GetMapping("")
-  public ResponseEntity<Object> healthCheck() {
-    return new ResponseEntity<>(HttpStatus.OK);
+  @GetMapping("/ping")
+  public ResponseEntity<String> healthCheck() {
+    return new ResponseEntity<>("pong", HttpStatus.OK);
   }
 
   @GetMapping("/landmarks/{id}")
