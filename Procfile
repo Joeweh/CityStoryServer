@@ -1,0 +1,1 @@
+web: ./gradlew build && java -jar build/libs/citystory-0.0.1-SNAPSHOT.jar
