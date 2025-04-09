@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.github.joeweh.citystory.entities.Landmark;
 import io.github.joeweh.citystory.entities.Rating;
 import io.github.joeweh.citystory.services.RatingService;
@@ -31,6 +34,17 @@ public class API {
   @GetMapping("/ping")
   public ResponseEntity<String> healthCheck() {
     return new ResponseEntity<>("pong", HttpStatus.OK);
+  }
+
+  @GetMapping("/landmarks")
+  public ResponseEntity<String> getLandmarks() {
+    List<Landmark> landmarks = ratingService.getLandmarks();
+
+    try {
+      return new ResponseEntity<>(mapper.writeValueAsString(landmarks), HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @GetMapping("/landmarks/{id}")

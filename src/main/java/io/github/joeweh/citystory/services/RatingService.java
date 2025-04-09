@@ -6,8 +6,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.github.joeweh.citystory.entities.Landmark;
+import io.github.joeweh.citystory.entities.LatLong;
 
 @Repository
 public class RatingService {
@@ -15,6 +18,32 @@ public class RatingService {
 
   public RatingService(final Connection connection) {
     this.connection = connection;
+  }
+
+  public List<Landmark> getLandmarks() {
+    try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM landmarks")) {
+      try (ResultSet rs = stmt.executeQuery()) {
+
+        List<Landmark> landmarks = new ArrayList<>();
+
+        while (rs.next()) {
+          String uid = rs.getString("uid");
+          String name = rs.getString("name");
+          String description = rs.getString("description");
+          double latitude = rs.getDouble("latitude");
+          double longitude = rs.getDouble("longitude");
+
+          landmarks.add(new Landmark(uid, name, description, new LatLong(latitude, longitude)));
+        }
+
+        return landmarks;
+      }
+    }
+
+    // TODO handle appropriately
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public Landmark getLandmarkById(String uid) throws IllegalArgumentException {
@@ -27,12 +56,15 @@ public class RatingService {
         }
 
         String name = rs.getString("name");
+        String description = rs.getString("description");
+        double latitude = rs.getDouble("latitude");
+        double longitude = rs.getDouble("longitude");
 
-        // TODO get description
-        return new Landmark(name, "");
+        return new Landmark(uid, name, description, new LatLong(latitude, longitude));
       }
     }
 
+    // TODO handle appropriately
     catch (SQLException e) {
       throw new RuntimeException(e);
     }
