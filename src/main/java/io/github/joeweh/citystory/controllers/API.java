@@ -28,6 +28,11 @@ public class API {
     this.mapper = new ObjectMapper();
   }
 
+  @GetMapping("")
+  public ResponseEntity<Object> healthCheck() {
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   @GetMapping("/landmarks/{id}")
   public ResponseEntity<String> getLandmarkById(@PathVariable String id) {
     try {
