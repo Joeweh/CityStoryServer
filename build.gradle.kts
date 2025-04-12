@@ -18,6 +18,9 @@ repositories {
 }
 
 dependencies {
+	// DB Connection Pool Impl
+	implementation("com.zaxxer:HikariCP:6.3.0")
+
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	runtimeOnly("com.mysql:mysql-connector-j")

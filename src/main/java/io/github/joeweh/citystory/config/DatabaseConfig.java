@@ -1,12 +1,12 @@
 package io.github.joeweh.citystory.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import javax.sql.DataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 public class DatabaseConfig {
@@ -20,11 +20,14 @@ public class DatabaseConfig {
   private String password;
 
   @Bean
-  public Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(
-            url,
-            username,
-            password
-    );
+  public DataSource getDataSource() {
+    DataSourceBuilder<?> builder = DataSourceBuilder.create();
+
+    builder.driverClassName("com.mysql.cj.jdbc.Driver");
+    builder.url(url);
+    builder.username(username);
+    builder.password(password);
+
+    return builder.type(HikariDataSource.class).build();
   }
 }
