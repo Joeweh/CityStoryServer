@@ -1,3 +1,3 @@
 package io.github.joeweh.citystory.entities;
 
-public record Rating(String uid, int value, String landmarkId) {}
+public record Rating(String uid, String landmarkId, String userId, int value) {}

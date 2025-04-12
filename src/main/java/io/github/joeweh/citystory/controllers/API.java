@@ -45,7 +45,6 @@ public class API {
     }
   }
 
-  // TODO test this
   @PutMapping("/landmarks/{landmarkId}/ratings")
   public ResponseEntity<String> updateOrCreateRating(@PathVariable String landmarkId, @RequestBody String json) {
     try {
