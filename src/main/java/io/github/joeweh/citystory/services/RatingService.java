@@ -38,8 +38,9 @@ public class RatingService {
             String description = rs.getString("description");
             double latitude = rs.getDouble("latitude");
             double longitude = rs.getDouble("longitude");
+            double averageRating = rs.getDouble("avg_rating");
 
-            landmarks.add(new Landmark(uid, name, description, new LatLong(latitude, longitude)));
+            landmarks.add(new Landmark(uid, name, description, new LatLong(latitude, longitude), averageRating));
           }
 
           return landmarks;
