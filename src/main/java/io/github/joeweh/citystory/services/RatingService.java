@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 
 import io.github.joeweh.citystory.entities.Landmark;
 import io.github.joeweh.citystory.entities.LatLong;
+import io.github.joeweh.citystory.entities.RatingDAO;
 
 @Repository
 public class RatingService {
@@ -23,7 +24,7 @@ public class RatingService {
     this.dataSource = dataSource;
   }
 
-  public List<Landmark> getLandmarks() {
+  public List<Landmark> getLandmarks() throws SQLException {
     try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("SELECT * FROM landmarks")) {
       try (ResultSet rs = stmt.executeQuery()) {
 
@@ -42,36 +43,38 @@ public class RatingService {
         return landmarks;
       }
     }
-
-    // TODO handle appropriately
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
   }
 
-  public void updateOrCreateRating(String landmarkId, String userId, int value) {
+  public boolean updateOrCreateRating(String landmarkId, String userId, int value) throws IllegalArgumentException, SQLException {
+    try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("SELECT 1 FROM landmarks WHERE uid=?")) {
+      stmt.setString(1, landmarkId);
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (!rs.next()) {
+          throw new IllegalArgumentException("Landmark does not exist");
+        }
+      }
+    }
+
     try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("SELECT 1 FROM ratings WHERE landmarkId=? AND userId=?")) {
       stmt.setString(1, landmarkId);
       stmt.setString(2, userId);
 
-      ResultSet rs = stmt.executeQuery();
+      try (ResultSet rs = stmt.executeQuery()) {
+        if (rs.next()) {
+          updateRating(landmarkId, userId, value);
+          return false;
+        }
 
-      if (rs.next()) {
-        updateRating(landmarkId, userId, value);
+        else {
+          createRating(landmarkId, userId, value);
+          return true;
+        }
       }
-
-      else {
-        createRating(landmarkId, userId, value);
-      }
-
-      rs.close();
-
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
     }
   }
 
-  private void createRating(String landmarkId, String userId, int value) {
+  private void createRating(String landmarkId, String userId, int value) throws SQLException {
     try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("INSERT INTO ratings VALUES(?, ?, ?, ?)")) {
       stmt.setString(1, UUID.randomUUID().toString());
       stmt.setString(2, landmarkId);
@@ -82,13 +85,9 @@ public class RatingService {
 
       System.out.println("RT: " + returnType);
     }
-
-    catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
   }
 
-  private void updateRating(String landmarkId, String userId, int newValue) {
+  private void updateRating(String landmarkId, String userId, int newValue) throws SQLException {
     try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("UPDATE ratings SET value=? WHERE landmarkId=? AND userId=?")) {
       stmt.setInt(1, newValue);
       stmt.setString(2, landmarkId);
@@ -98,9 +97,24 @@ public class RatingService {
 
       System.out.println("Update Count: " + updateCount);
     }
+  }
 
-    catch (SQLException e) {
-      throw new RuntimeException(e);
+  public List<RatingDAO> getUserRatings(String userId) throws SQLException {
+    try (PreparedStatement stmt = dataSource.getConnection().prepareStatement("SELECT (ratings.landmarkId, ratings.value) FROM ratings WHERE userId=?")) {
+      stmt.setString(1, userId);
+
+      try (ResultSet rs = stmt.executeQuery()) {
+        List<RatingDAO> ratings = new ArrayList<>();
+
+        while (rs.next()) {
+          String landmarkId = rs.getString("landmarkId");
+          int value = rs.getInt("value");
+
+          ratings.add(new RatingDAO(landmarkId, value));
+        }
+
+        return ratings;
+      }
     }
   }
 }
