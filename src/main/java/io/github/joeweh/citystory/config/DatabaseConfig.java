@@ -40,7 +40,7 @@ public class DatabaseConfig {
     hikariConfig.setIdleTimeout(300_000);        // 5 minutes
     hikariConfig.setMaxLifetime(1_800_000);      // 30 minutes
     hikariConfig.setKeepaliveTime(300_000);      // 5 minutes
-    hikariConfig.setConnectionTimeout(30_000);   // 30 seconds
+    hikariConfig.setConnectionTimeout(15_000);   // 30 seconds
     hikariConfig.setConnectionTestQuery("SELECT 1");
 
     return new HikariDataSource(hikariConfig);
