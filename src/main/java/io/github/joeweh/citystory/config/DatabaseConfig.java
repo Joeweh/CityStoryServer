@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
@@ -28,6 +30,19 @@ public class DatabaseConfig {
     builder.username(username);
     builder.password(password);
 
-    return builder.type(HikariDataSource.class).build();
+    DataSource baseSource = builder.type(HikariDataSource.class).build();
+
+    HikariConfig hikariConfig = new HikariConfig();
+
+    hikariConfig.setDataSource(baseSource);
+    hikariConfig.setMaximumPoolSize(10);
+    hikariConfig.setMinimumIdle(5);
+    hikariConfig.setIdleTimeout(300_000);        // 5 minutes
+    hikariConfig.setMaxLifetime(1_800_000);      // 30 minutes
+    hikariConfig.setKeepaliveTime(300_000);      // 5 minutes
+    hikariConfig.setConnectionTimeout(30_000);   // 30 seconds
+    hikariConfig.setConnectionTestQuery("SELECT 1");
+
+    return new HikariDataSource(hikariConfig);
   }
 }
